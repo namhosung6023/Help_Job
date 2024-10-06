@@ -13,9 +13,9 @@ const PostSchema = new mongoose.Schema({
     default :0
   },
   resume: {
-    degree: String,
-    institution: String,
-    year: Number
+    title: String,
+    main: String,
+    state: String
   }
 });
 
@@ -39,5 +39,29 @@ return match;
 // 모델 생성 (posts 컬렉션에 저장)
 const Post = mongoose.model('userModel', PostSchema);
 
+const newPost = new Post({
+  name: 'John Doe',
+  id: 'john123',
+  password: 'securePassword123',
+  email: 'john.doe@example.com',
+  phone: '+1234567890',
+  role: 1,  // 관리자
+  resume: {
+    title: 'Senior Developer',
+    main: 'Experienced in Node.js and MongoDB.',
+    state: 'Submitted'
+  }
+});
 
-module.exports = User; // Post 모델을 모듈로 내보내기
+// 데이터 저장
+newPost.save()
+  .then(() => {
+    console.log('User data saved successfully!');
+  })
+  .catch((err) => {
+    console.error('Error saving user data:', err);
+  });
+
+
+
+module.exports = Post; // Post 모델을 모듈로 내보내기
