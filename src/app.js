@@ -78,8 +78,11 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // 회원가입 및 로그인
 app.use('/users',require('./routes/users'));
+
+
 // 이력서 저장 API
 app.post('/submit-resume', async (req, res) => {
   const { userId, name, phone, email, education, experience, skills } = req.body;
