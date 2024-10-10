@@ -3,9 +3,8 @@ const express = require('express'); // Express 모듈 가져오기
 const app = express(); // Express 앱 생성
 const dotenv = require('dotenv');
 const cors = require('cors');
-// nodemon다운 받았거든 앞으로 이거 실행할려면 npm run dev 치면 되고 다운 받은 이유는 실행되는 와중에 우리가 변경사항이 있으면 그것을 즉시 처리해주는 라이브러리임 
 
-// Express에서 JSON 요청 본문을 파싱하기 위해 미들웨어 추가
+
 dotenv.config();
 app.use(express.json());
 app.use(cors());
@@ -17,38 +16,6 @@ const Resume = require('./models/Resume'); // 이력서 모델 가져오기
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('MongoDB에 성공적으로 연결되었습니다.');
-
-    // 자동 이력서 데이터 삽입
-    const sampleResume = new Resume({
-      userId: "5f8d0c1c6d4f5b2c54f9a6e8", // 실제 회원 ID로 변경
-      name: "남호성",
-      phone: "01062256023",
-      email: "hosung1234@naver.com",
-      education: [
-        {
-          degree: "Bachelor of Engineering",
-          institution: "ABC University",
-          year: 2020
-        }
-      ],
-      experience: [
-        {
-          jobTitle: "Software Engineer Intern",
-          company: "XYZ Corp",
-          startDate: new Date("2021-06-01"),
-          endDate: new Date("2021-08-31"),
-          description: "Worked on developing features for the company's web application."
-        }
-      ],
-      skills: ["JavaScript", "Node.js", "MongoDB"]
-    });
-
-    try {
-      const savedResume = await sampleResume.save();
-      console.log("Sample resume data inserted: ", savedResume);
-    } catch (err) {
-      console.log("Error inserting sample resume data: ", err);
-    }
 
     // 서버 실행
     app.listen(3000, () => {
@@ -79,26 +46,4 @@ app.post('/register', async (req, res) => {
 
 // 회원가입 및 로그인
 app.use('/users',require('./routes/users'));
-
-
-// 이력서 저장 API
-app.post('/submit-resume', async (req, res) => {
-  const { userId, name, phone, email, education, experience, skills } = req.body;
-
-  try {
-    const newResume = new Resume({
-      userId,
-      name,
-      phone,
-      email,
-      education,
-      experience,
-      skills
-    });
-
-    const savedResume = await newResume.save();
-    res.status(201).json({ message: '이력서가 성공적으로 저장되었습니다.', resume: savedResume });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+app.use('/mypage', require('./routes/mypage'));

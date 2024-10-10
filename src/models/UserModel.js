@@ -14,8 +14,9 @@ const PostSchema = new mongoose.Schema({
   },
   resume: {
     title: String,
-    main: String,
-    state: String
+    skii: String,
+    place: String,
+    work: String
   }
 });
 
