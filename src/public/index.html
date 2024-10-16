@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // 메시지 보내기
+        function sendMessage() {
+            const message = document.getElementById('messageInput').value;
+            const senderId = "6707f9d763d502cd11737a03"; // 현재 사용자
+            const receiverId = "6707f53621ce22469b301b0a"; // 상대방
+            socket.emit('sendMessage', { message, senderId, receiverId });
+        }
+
+        // 메시지 받기
+        socket.on('receiveMessage', (data) => {
+            const messages = document.getElementById('messages');
+            const newMessage = document.createElement('p');
+            newMessage.textContent = `${data.senderId}: ${data.message}`;
+            messages.appendChild(newMessage);
+        });
+    </script>
+</head>
+<body>
+    <input id="messageInput" type="text" placeholder="메시지를 입력하세요" />
+    <button onclick="sendMessage()">전송</button>
+    <div id="messages"></div>
+</body>
+</html>
