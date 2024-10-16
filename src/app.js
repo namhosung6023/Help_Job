@@ -31,18 +31,6 @@ app.get('/', (req, res) => {
   res.send('MongoDB와 Express가 성공적으로 연결되었습니다.');
 });
 
-// 회원 가입 API (예시)
-app.post('/register', async (req, res) => {
-  const { name, id, password, email, phone } = req.body;
-  const newUser = new User({ name, id, password, email, phone });
-
-  try {
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // 회원가입 및 로그인
 app.use('/users',require('./routes/users'));
