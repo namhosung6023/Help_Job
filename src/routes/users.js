@@ -57,4 +57,23 @@ router.post('/logout', auth, async(req,res,next) => {
   }
 })
 
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const userId = req.params.id; // URL 파라미터에서 유저 ID 가져오기
+
+    // 유저 찾기
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' }); // 유저가 없을 경우
+    }
+
+    // 유저 삭제
+    await User.findByIdAndDelete(userId);
+
+    return res.status(200).json({ message: 'User successfully deleted' }); // 성공 메시지
+  } catch (error) {
+    next(error); // 에러가 발생하면 다음 미들웨어로 넘김
+  }
+});
+
 module.exports = router;
