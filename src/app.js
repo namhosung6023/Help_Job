@@ -8,7 +8,7 @@ const port = 3000
 // MongoDB Atlas 연결 URL
 const url = `mongodb+srv://namhosung:whfwkr2024@helpjob.kszot.mongodb.net/HelpJob?retryWrites=true&w=majority`;
 
-// Express에서 JSON 요청 본문을 파싱하기 위해 미들웨어 추가
+
 dotenv.config();
 app.use(express.json());
 app.use(cors());
@@ -18,8 +18,13 @@ const Resume = require('./models/Resume'); // 이력서 모델 가져오기
 
 // Mongoose로 MongoDB 연결
 mongoose.connect(process.env.MONGODB_URI)
-  .then(()=> {
-    console.log('연결완료')
+  .then(async () => {
+    console.log('MongoDB에 성공적으로 연결되었습니다.');
+
+    // 서버 실행
+    app.listen(3000, () => {
+      console.log('서버가 http://localhost:3000 에서 실행 중입니다.');
+    });
   })
   .catch(err => {
     console.error(err)
@@ -44,3 +49,4 @@ app.use('/users',require('./routes/users'));
 
 // 신고 
 app.use('/declaration',require('./routes/declaration'));
+app.use('/mypage', require('./routes/mypage'));
