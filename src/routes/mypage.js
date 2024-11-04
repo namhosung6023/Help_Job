@@ -3,6 +3,7 @@ const router = express.Router();
 const Post = require('../models/UserModel'); // 회원 스키마 가져오기
 const JobPosting = require('../models/JobPosting');  // 공고 모델 가져오기
 
+
 // 이력서 저장 API
 router.post('/submit-resume', async (req, res) => {
   const { userId, title, skill, place, work } = req.body;
@@ -49,6 +50,19 @@ router.post('/submit-job', async (req, res) => {
     // 공고 저장
     const savedJobPosting = await newJobPosting.save();
     res.status(201).json({ message: '공고가 성공적으로 저장되었습니다.', jobPosting: savedJobPosting });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 사용자의 공고 목록을 가져오는 API
+router.get('/job-posts', async (req, res) => {
+  const userId = req.query.userId; // 사용자 ID를 쿼리 파라미터로 받음
+
+  try {
+    // postedBy 필드가 userId와 일치하는 공고를 가져옴
+    const jobPosts = await JobPosting.find({ postedBy: userId });
+    res.status(200).json(jobPosts);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

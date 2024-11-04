@@ -10,21 +10,20 @@ const path = require('path');
 dotenv.config();
 
 const app = express(); // Express 앱 생성
-const port = 3000;
+const port = 8080;
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public'))); // 정적 파일 제공
-
-// MongoDB Atlas 연결 URL
-const url = `mongodb+srv://namhosung:whfwkr2024@helpjob.kszot.mongodb.net/HelpJob?retryWrites=true&w=majority`;
 
 // CORS 설정
 app.use(cors());
 app.use(express.json());
 
+
 // Mongoose로 MongoDB 연결
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
+    console.log(process.env.MONGODB_URI)
     console.log('MongoDB에 성공적으로 연결되었습니다.');
 
     // 서버 시작
