@@ -163,4 +163,51 @@ router.get('/all-users', async (req, res) => {
   }
 });
 
+//지원자 가지고오기 
+router.get('/job/applicants', async (req, res) => {
+  const { _id } = req.query; // jobId를 쿼리 파라미터로 받음
+
+  // jobId가 없는 경우 에러 반환
+  if (!_id) {
+    return res.status(400).json({ error: 'jobId 쿼리 파라미터가 누락되었습니다.' });
+  }
+
+  try {
+    // 해당 공고와 지원자 정보를 조회
+    const jobPosting = await JobPosting.findById(_id).populate('applicants', 'name'); // 필요한 필드만 선택 가능
+
+    if (!jobPosting) {
+      return res.status(404).json({ error: '해당 공고를 찾을 수 없습니다.' });
+    }
+
+    // 지원자 목록 반환
+    res.status(200).json({ applicants: jobPosting.applicants });
+  } catch (err) {
+    console.error('Error fetching applicants:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+//지원자 지원하기 
+router.post('/apply', async (req, res) => {
+  const { _id, userId } = req.body; // jobId와 지원자의 userId를 요청에서 받음
+
+  try {
+    // 해당 공고를 찾고 applicants 배열에 userId 추가
+    const jobPosting = await JobPosting.findByIdAndUpdate(
+      _id,
+      { $addToSet: { applicants: userId } }, // 중복 추가 방지를 위해 addToSet 사용
+      { new: true } // 업데이트된 문서를 반환
+    );
+
+    if (!jobPosting) {
+      return res.status(404).json({ error: '해당 공고를 찾을 수 없습니다.' });
+    }
+
+    res.status(200).json({ message: '지원이 완료되었습니다.', jobPosting });
+  } catch (err) {
+    console.error('Error applying for job:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 module.exports = router;

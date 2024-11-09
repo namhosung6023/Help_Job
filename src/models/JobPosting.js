@@ -26,7 +26,11 @@ const JobPostingSchema = new mongoose.Schema({
   postedAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  applicants: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'userModel' // 지원자의 ObjectID를 참조
+  }]
 });
 
 // 모델 생성

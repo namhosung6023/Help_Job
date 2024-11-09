@@ -9,8 +9,9 @@ const path = require('path');
 
 dotenv.config();
 
+
 const app = express(); // Express 앱 생성
-const port = 8080;
+const port = 8090;
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public'))); // 정적 파일 제공
@@ -71,3 +72,4 @@ app.use('/mypage', require('./routes/mypage'));
 
 // 채팅 
 app.use('/chat', chatRoutes); // chat.js 라우터를 '/chat'로 사용
+
