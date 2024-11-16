@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Post = require('../models/UserModel'); // 회원 스키마 가져오기
 const JobPosting = require('../models/JobPosting');  // 공고 모델 가져오기
+const upload = require('../upload');  // upload.js 경로 확인
+
 
 
 // 이력서 저장 API
@@ -26,14 +28,12 @@ router.post('/submit-resume', async (req, res) => {
   }
 });
 
-// 공고 작성 API
-router.post('/submit-job', async (req, res) => {
+router.post('/submit-job', upload.single('image'), async (req, res) => {
   const { userId, title, content, location, salary } = req.body;
 
   try {
-    // userId로 회원을 찾기
+    // 회원 찾기
     const user = await User.findOne({ id: userId });
-
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
@@ -44,7 +44,8 @@ router.post('/submit-job', async (req, res) => {
       content,
       location,
       salary,
-      postedBy: user._id
+      postedBy: user._id,  // user._id를 사용
+      imageUrl: req.file ? req.file.location : null  // S3 URL
     });
 
     // 공고 저장
@@ -54,6 +55,8 @@ router.post('/submit-job', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
 
 // 사용자의 공고 목록을 가져오는 API
 router.get('/job-posts', async (req, res) => {

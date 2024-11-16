@@ -30,7 +30,11 @@ const JobPostingSchema = new mongoose.Schema({
   applicants: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'userModel' // 지원자의 ObjectID를 참조
-  }]
+  }],
+  imageUrl: {
+    type: String,  // 이미지 URL을 저장
+    required: false
+  }
 });
 
 // 모델 생성
