@@ -20,7 +20,7 @@ const PostSchema = new mongoose.Schema({
     title: String,
     skii: String,
     place: String,
-    work: String
+    work: [String]
   }
 });
 

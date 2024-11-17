@@ -40,6 +40,7 @@ router.post("/login",async (req,res,next)=> {
       next();  
     }
 }) 
+
 //auth를 써서 미들웨어 등록
 router.get('/auth', auth, async(req,res,next)=> {    
   return res.json({

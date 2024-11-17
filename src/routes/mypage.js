@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const Post = require('../models/UserModel'); // 회원 스키마 가져오기
+const userModel = require('../models/UserModel'); // 회원 스키마 가져오기
 const JobPosting = require('../models/JobPosting');  // 공고 모델 가져오기
+const auth = require('../middleware/auth')
 const upload = require('../upload');  // upload.js 경로 확인
+const mongoose = require('mongoose'); 
 
 
 
@@ -12,7 +14,7 @@ router.post('/submit-resume', async (req, res) => {
 
   try {
     // userId로 회원 찾기
-    const user = await Post.findOne({ id: userId });
+    const user = await userModel.findOne({ _id: userId });
 
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
@@ -28,15 +30,10 @@ router.post('/submit-resume', async (req, res) => {
   }
 });
 
-router.post('/submit-job', upload.single('image'), async (req, res) => {
-  const { userId, title, content, location, salary } = req.body;
-
+// 새 공고 생성 라우트
+router.post('/jobposting',auth, async (req, res) => {
   try {
-    // 회원 찾기
-    const user = await User.findOne({ id: userId });
-    if (!user) {
-      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
-    }
+    const { title, content, location, salary } = req.body;
 
     // 새 공고 생성
     const newJobPosting = new JobPosting({
@@ -44,28 +41,12 @@ router.post('/submit-job', upload.single('image'), async (req, res) => {
       content,
       location,
       salary,
-      postedBy: user._id,  // user._id를 사용
-      imageUrl: req.file ? req.file.location : null  // S3 URL
+      postedBy: req.user._id  // req.user에 로그인된 사용자 정보가 할당됨
     });
 
     // 공고 저장
     const savedJobPosting = await newJobPosting.save();
     res.status(201).json({ message: '공고가 성공적으로 저장되었습니다.', jobPosting: savedJobPosting });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
-
-// 사용자의 공고 목록을 가져오는 API
-router.get('/job-posts', async (req, res) => {
-  const userId = req.query.userId; // 사용자 ID를 쿼리 파라미터로 받음
-
-  try {
-    // postedBy 필드가 userId와 일치하는 공고를 가져옴
-    const jobPosts = await JobPosting.find({ postedBy: userId });
-    res.status(200).json(jobPosts);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -83,6 +64,9 @@ router.get('/job-postings', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+
 
 
 // 특정 공고의 상세 내용을 가져오는 API
@@ -126,28 +110,43 @@ router.get('/resumes', async (req, res) => {
 });
 
 // 특정 회원의 이력서 정보를 가져오는 API
-router.get('/resume/:userId', async (req, res) => {
-  const { userId } = req.params;
-
+router.get('/resume', async (req, res) => {
+  const userId = req.query.userId;
+  console.log("이력서",userId)
   try {
-    // userId로 회원을 조회
-    const user = await User.findOne({ id: userId });
+    // userId를 ObjectId로 변환
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: '유효하지 않은 userId입니다.' });
+    }
+
+    const user = await userModel.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: '해당 사용자를 찾을 수 없습니다.' });
     }
 
-    // 이력서 정보가 없을 경우 처리
     if (!user.resume) {
       return res.status(404).json({ message: '이 사용자의 이력서가 존재하지 않습니다.' });
     }
 
-    // 이력서 정보 반환
     res.status(200).json({
-      userId: user.id,
+      userId: user._id,
       name: user.name,
       resume: user.resume
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 사용자의 공고 목록을 가져오는 API
+router.get('/job-posts', async (req, res) => {
+  const userId = req.query.userId; // 사용자 ID를 쿼리 파라미터로 받음
+  console.log("공고",userId)
+  try {
+    // postedBy 필드가 userId와 일치하는 공고를 가져옴
+    const jobPosts = await JobPosting.find({ postedBy: userId });
+    res.status(200).json(jobPosts);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -213,4 +212,24 @@ router.post('/apply', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get('/user-info', auth, (req, res) => {
+  try {
+    // auth 미들웨어에서 설정한 req.user 사용
+    const userInfo = {
+      name: req.user.name,
+      email: req.user.email,
+      phone: req.user.phone,
+      role: req.user.role,
+      id: req.user._id
+      // 필요한 사용자 정보 추가
+    };
+
+    res.status(200).json(userInfo); // 사용자 정보 응답
+  } catch (error) {
+    console.error('사용자 정보 반환 오류:', error);
+    res.status(500).json({ message: '서버 오류' });
+  }
+});
+
 module.exports = router;
