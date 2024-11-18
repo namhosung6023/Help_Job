@@ -33,7 +33,7 @@ const JobPostingSchema = new mongoose.Schema({
   }],
   imageUrl: {
     type: String,  // 이미지 URL을 저장
-    required: false
+    required: true
   }
 });
 

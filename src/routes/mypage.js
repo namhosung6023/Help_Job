@@ -70,31 +70,31 @@ router.get('/job-postings', async (req, res) => {
 
 
 // 특정 공고의 상세 내용을 가져오는 API
-router.get('/job-postings/:jobId', async (req, res) => {
-  const { jobId } = req.params;
+  router.get('/job-postings/:jobId', async (req, res) => {
+    const { jobId } = req.params;
 
-  try {
-    // jobId로 특정 공고를 조회
-    const jobPosting = await JobPosting.findById(jobId).populate('postedBy', 'name id');
+    try {
+      // jobId로 특정 공고를 조회
+      const jobPosting = await JobPosting.findById(jobId).populate('postedBy', 'name id');
 
-    // 공고가 존재하지 않을 경우 처리
-    if (!jobPosting) {
-      return res.status(404).json({ message: '해당 공고를 찾을 수 없습니다.' });
+      // 공고가 존재하지 않을 경우 처리
+      if (!jobPosting) {
+        return res.status(404).json({ message: '해당 공고를 찾을 수 없습니다.' });
+      }
+
+      // 공고 내용 반환
+      res.status(200).json(jobPosting);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-
-    // 공고 내용 반환
-    res.status(200).json(jobPosting);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+  });
 
 
 // 모든 회원 이력서 조회 api 
 router.get('/resumes', async (req, res) => {
   try {
     // 모든 회원을 조회
-    const users = await User.find({}, 'name id resume'); // name, id, resume만 선택적으로 조회
+    const users = await userModel.find({}, 'name id resume'); // name, id, resume만 선택적으로 조회
 
     // 이력서 정보만 필터링하여 배열로 반환
     const resumes = users.map(user => ({
